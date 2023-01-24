@@ -2,9 +2,13 @@ const express = require("express");
 const app = express();
 const dogsEndpoint = require("./dogs-list");
 
+app.set("view engine", "ejs");
+
 const port = 8000;
 
 app.use(express.json());
+
+app.use(express.static("public"));
 
 app.use("/dogs-list", dogsEndpoint);
 
@@ -27,9 +31,10 @@ function methods(req, res, next) {
 
 app.use("/", methods);
 
+app.use(express.static("public"));
+
 app.get("/", function (req, res) {
-  res.status(200).send("Hola mundo");
-  res.end();
+  res.render("index");
 });
 
 app.post("/", bodyValidation, function (req, res) {

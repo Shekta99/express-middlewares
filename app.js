@@ -6,6 +6,11 @@ const port = 8000;
 
 app.use(express.json());
 
+app.set("view engine", "ejs");
+
+app.use(express.static("public"));
+app.use("/sources", express.static(__dirname + "/public"));
+
 app.use("/dogs-list", dogsEndpoint);
 
 function bodyValidation(req, res, next) {
@@ -28,8 +33,7 @@ function methods(req, res, next) {
 app.use("/", methods);
 
 app.get("/", function (req, res) {
-  res.status(200).send("Hola mundo");
-  res.end();
+  res.render("index");
 });
 
 app.post("/", bodyValidation, function (req, res) {
@@ -45,7 +49,8 @@ app
     res.send(`Hola ${name}, somos ADA School`);
     res.end();
   })
-  .post(express.json(), function (req, res) {
+  .post(express.json({ inflate: true }), function (req, res) {
+    console.log(req.body);
     res.status(200).send("recibido");
   });
 

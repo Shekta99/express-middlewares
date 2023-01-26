@@ -1,6 +1,12 @@
 const express = require("express");
 const app = express();
 const dogsEndpoint = require("./dogs-list");
+const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv");
+
+dotenv.config();
+
+const users = [{ email: "example@example.com", name: "example" }];
 
 const port = 8000;
 
@@ -53,6 +59,31 @@ app
     console.log(req.body);
     res.status(200).send("recibido");
   });
+
+app.post("/auth", function (req, res) {
+  const userInfo = users.map((user) => {
+    if (user.email == req.body.email) {
+      return user;
+    }
+  });
+  if (userInfo.length === 0) {
+    res.status(401).send({ error: "Invalid user name or password" });
+  } else {
+    const token = jwt.sign(userInfo[0], process.env.SECRET_KEY);
+
+    res.json({ token });
+  }
+});
+
+app.get("/protect", function (req, res) {
+  const token = req.header("Authorization");
+  try {
+    const decoded = jwt.verify(token, process.env.SECRET_KEY);
+    res.send("autenticado");
+  } catch (e) {
+    res.json({ e });
+  }
+});
 
 app.listen(port, function () {
   console.log(`El servidor esta escuchando en http://localhost:${port}`);

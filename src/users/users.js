@@ -1,10 +1,14 @@
 const express = require("express");
 const usersEndpoint = express.Router();
+const connectDb = require("../../dbMongoose");
+const UserModel = require("../models/users");
 
-const users = [
-  { email: "example@example.com", name: "example" },
-  { email: "test@test.com", name: "test" },
-];
+const createUser = async (data) => {
+  await connectDb();
+  const newUser = new UserModel({ age: Number(data.age), name: data.name });
+  await newUser.save();
+  return newUser;
+};
 
 usersEndpoint.get("/", function (req, res) {
   res.status(200).json({ users: users });
@@ -12,8 +16,13 @@ usersEndpoint.get("/", function (req, res) {
 
 usersEndpoint.post("/", function (req, res) {
   const data = req.body;
-  users.push(data);
-  res.status(201).json({ createdUser: data });
+  if (data.age !== undefined && data.name !== undefined) {
+    createUser(data).then((data) => {
+      res.status(201).json({ createdUser: data });
+    });
+  } else {
+    res.status(400).json({ error: "age and name is required" });
+  }
 });
 
 usersEndpoint.put("/:id", function (req, res) {

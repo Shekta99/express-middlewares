@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const dogsEndpoint = require("./dogs-list");
+const usersEndpoint = require("./src/users/users");
 const jwt = require("jsonwebtoken");
 const env = require("dotenv");
 
@@ -21,6 +22,7 @@ app.use(express.static("public"));
 app.use("/sources", express.static(__dirname + "/public"));
 
 app.use("/dogs-list", dogsEndpoint);
+app.use("/api/users", usersEndpoint);
 
 function bodyValidation(req, res, next) {
   if (Object.values(req.body).length === 0) {
@@ -113,6 +115,14 @@ app.get("/protect", protect, function (req, res) {
 app.get("/protect-2", protect, function (req, res) {
   res.send("paso2");
 });
+
+/*
+db.then(async (db) => {
+  const collectionUsers = db.collection("users");
+  const findResult = await collectionUsers.find({}).toArray();
+  console.log("Found documents =>", findResult);
+});
+*/
 
 app.listen(port, function () {
   console.log(`El servidor esta escuchando en http://localhost:${port}`);
